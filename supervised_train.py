@@ -1,9 +1,11 @@
 import pandas as pd
 import os
+from os.path import join
 import numpy as np
 import random
 from create_datasets import create_train_dataset_supervised
 from pycaret.classification import *
+from pycaret.datasets import get_data
 
 random.seed(42)
 
@@ -12,6 +14,7 @@ FM_DIR = os.path.join(WORK_DIR, 'feature_maps')
 BENCHMARK_DIR = os.path.join(WORK_DIR, 'benchmark')
 DATA_DIR = os.path.join(WORK_DIR, 'data')
 OUTPUTS_DIR = os.path.join(WORK_DIR, 'outputs')
+
 
 if __name__ == '__main__':
     col_names = ['NTrSOrig', 'ATrSOrig', 'NTrSRes', 'ATrSRes', 'NTsSOrig', 'ATsSOrig', 'NTsSRes', 'ATsSRes',
@@ -27,6 +30,8 @@ if __name__ == '__main__':
     X_train_sup, y_train_sup, sizes_sup = create_train_dataset_supervised(1965)
     data_df = pd.DataFrame(X_train_sup)
     data_df['Labels'] = y_train_sup
-    s = setup(data_df, target='Labels', session_id=42)
-    sup_train_results = compare_models()
+    s = setup(data_df, target='Labels', session_id=42, n_jobs=1)
+    best = compare_models(fold=5)
+    sup_train_results = pull()
+    sup_train_results.to_csv(join(OUTPUTS_DIR, 'results.csv'))
     print('Finnish')
