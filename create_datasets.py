@@ -101,6 +101,36 @@ def create_train_dataset_supervised(dataset_id):
     return X_train, y_train, sizes
 
 
+def create_test_dataset_balanced(dataset_id):
+    test_f = 'TEST_DATASET_' + str(dataset_id) + '.csv'
+    test_path = join(BENCHMARK_DIR, test_f)
+    X_test_unbalanced, y_test_unbalanced = get_dataset_from_csv(test_path)
+    df = pd.DataFrame(X_test_unbalanced)
+    df['Labels'] = y_test_unbalanced
+    # divide df to normal and anomaly
+    normal_encodings = df[df['Labels'] == 1].drop('Labels', axis=1).values
+    normal_labels = df[df['Labels'] == 1]['Labels'].values
+    anomaly_encodings = df[df['Labels'] == 0].drop(['Labels'], axis=1).values
+    anomaly_labels = df[df['Labels'] == 0]['Labels'].values
+    X_test, y_test = balance_dataset(normal_encodings, normal_labels, anomaly_encodings, anomaly_labels)
+    n_normal = y_test.sum()
+    n_anomaly = y_test.shape[0] - n_normal
+    sizes = (n_normal, n_anomaly)
+    return X_test, y_test, sizes
+
+
+def create_test_dataset_unbalanced(dataset_id):
+    test_f = 'TEST_DATASET_' + str(dataset_id) + '.csv'
+    test_path = join(BENCHMARK_DIR, test_f)
+    X_test, y_test = get_dataset_from_csv(test_path)
+    n_normal = y_test.sum()
+    n_anomaly = y_test.shape[0] - n_normal
+    sizes = (n_normal, n_anomaly)
+    return X_test, y_test, sizes
+
+
 if __name__ == '__main__':
-    X_train_sup, y_train_sup, sizes_sup = create_train_dataset_supervised(1965)
+    #X_train_sup, y_train_sup, sizes_sup = create_train_dataset_supervised(1965)
+    #X_test_ub, y_test_ub, sizes_ub = create_test_dataset_unbalanced(1965)
+    X_test_b, y_test_b, sizes_b = create_test_dataset_balanced(0)
     print('Finnish')
