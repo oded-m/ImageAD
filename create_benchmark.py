@@ -308,30 +308,31 @@ def create_benchmark_table(ne_df_list, ae_df_list, class_names):
             # Save unsupervised train data to file
             train_file_name = 'TRAIN_DATASET_' + str(i) + '.csv'
             path = join(WORK_DIR, BENCHMARK_DIR, train_file_name)
-            # df = train_df.copy()
-            # df[['FileName', 'ClassNumber', 'ClassName']].drop
+            train_df.drop(['FileName', 'ClassNumber', 'ClassName'], inplace=True, axis=1)
             train_df.to_csv(path)
             benchmark_df.loc[i, 'TrainLink'] = train_file_name
             # Save unsupervised test data to file
             test_file_name = 'TEST_DATASET_' + str(i) + '.csv'
             path = join(WORK_DIR, BENCHMARK_DIR, test_file_name)
+            test_df.drop(['FileName', 'ClassNumber', 'ClassName'], inplace=True, axis=1)
             test_df.to_csv(path)
             benchmark_df.loc[i, 'TestLink'] = test_file_name
             # Save supervised train data to file
             sup_train_file_name = 'SUP_TRAIN_DATASET_' + str(i) + '.csv'
             path = join(WORK_DIR, BENCHMARK_DIR, sup_train_file_name)
+            supervised_train_df.drop(['FileName', 'ClassNumber', 'ClassName'], inplace=True, axis=1)
             supervised_train_df.to_csv(path)
             benchmark_df.loc[i, 'SupTrainLink'] = sup_train_file_name
             # See balanced dataset size
             benchmark_df.loc[i, 'TrainSize'] = train_df.shape[0]
             benchmark_df.loc[i, 'TestSize'] = test_df.shape[0]
-            benchmark_df.loc[i, 'AnomalyTestPercent'] = anomaly_fraction
             normal_test_size = np.round(ne_df_list[i].shape[0] * 0.3)
             anomaly_test_size = np.round(ae_df_list[i].shape[0] * anomaly_fraction)
             if normal_test_size > anomaly_test_size:
                 balanced_size = str(anomaly_test_size) + ' A'
             else:
                 balanced_size = str(normal_test_size) + ' N'
+            benchmark_df.loc[i, 'AnomalyTestPercent'] = anomaly_test_size / (test_df.shape[0]) * 100
             benchmark_df.loc[i, 'BalancedTestSize'] = balanced_size
         else:
             benchmark_df.loc[i, 'DatasetOk'] = 0
@@ -352,6 +353,7 @@ if __name__ == '__main__':
     # create list of attributes to choose datasets from
     attrb_index1, attrb_name1 = get_attributes_list(input_file, test=0)
     # Multiply attributes to add conjugate classes
+
     attrb_name = []
     attrb_index = []
     for att_i, att_n in zip(attrb_index1, attrb_name1):
@@ -387,7 +389,7 @@ if __name__ == '__main__':
     benchmark_df, train_u_df, test_u_df, train_s_df = create_benchmark_table(n_enc_df_list, a_enc_df_list,
                                                                              a_class_names_list)
     image_benchmark_file = join(WORK_DIR, OUTPUTS_DIR, 'Image_Benchmark.csv')
-    benchmark_df.to_csv('image_benchmark_file')
+    benchmark_df.to_csv(image_benchmark_file)
     image_benchmark_data_file = join(WORK_DIR, OUTPUTS_DIR, 'Image_Benchmark.pkl')
     fname = open(image_benchmark_data_file, 'wb')
     pickle.dump((benchmark_df, train_u_df, test_u_df, train_s_df), fname)
