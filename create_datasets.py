@@ -129,8 +129,20 @@ def create_test_dataset_unbalanced(dataset_id):
     return X_test, y_test, sizes
 
 
+def create_train_dataset_unsupervised(dataset_id):
+    train_f = 'TRAIN_DATASET_' + str(dataset_id) + '.csv'
+    train_path = join(BENCHMARK_DIR, train_f)
+    normal_encodings, normal_labels = get_dataset_from_csv(train_path)
+    X_train = normal_encodings
+    y_train = normal_labels
+    n_normal = normal_labels.shape[0]
+    sizes = n_normal
+    return X_train, y_train, sizes
+
+
 if __name__ == '__main__':
     #X_train_sup, y_train_sup, sizes_sup = create_train_dataset_supervised(1965)
     #X_test_ub, y_test_ub, sizes_ub = create_test_dataset_unbalanced(1965)
-    X_test_b, y_test_b, sizes_b = create_test_dataset_balanced(0)
+    #X_test_b, y_test_b, sizes_b = create_test_dataset_balanced(0)
+    X_train_unsup, y_train_unsup, sizes_unsup = create_train_dataset_unsupervised(0)
     print('Finnish')
