@@ -3,7 +3,7 @@ import os
 from os.path import join
 import numpy as np
 import random
-from create_datasets import create_train_dataset_supervised
+from create_datasets import create_train_dataset_supervised, create_test_dataset_balanced, create_test_dataset_unbalanced
 from pycaret.classification import *
 from pycaret.datasets import get_data
 
@@ -26,12 +26,30 @@ if __name__ == '__main__':
                  'bF1Avg', 'bF1Std', 'bF1Max', 'bF1Min', 'bF1MaxName', 'bF1MinName'
                  ]
     sup_results_df = pd.DataFrame(columns=col_names)
-    #for i in range(5):
-    X_train_sup, y_train_sup, sizes_sup = create_train_dataset_supervised(1965)
+
+    X_train_sup, y_train_sup, sizes_sup = create_train_dataset_supervised(0)
     data_df = pd.DataFrame(X_train_sup)
     data_df['Labels'] = y_train_sup
-    s = setup(data_df, target='Labels', session_id=42, n_jobs=1)
-    best = compare_models(fold=5)
+    # test balanced dataset
+    X_test_b, y_test_b, sizes_b = create_test_dataset_balanced(0)
+    test_b_df = pd.DataFrame(X_test_b)
+    test_b_df['Labels'] = y_test_b
+    sb = setup(data_df, target='Labels', session_id=42, n_jobs=1, test_data=test_b_df, index=False)
+    best = compare_models(include=['lr', 'knn', 'dummy'], fold=5)
     sup_train_results = pull()
-    sup_train_results.to_csv(join(OUTPUTS_DIR, 'results.csv'))
+    sup_train_results.to_csv(join(OUTPUTS_DIR, 'results_balanced_cv.csv'))
+    ###########
+    # to test need to use predict
+    ###########
+    # test unbalanced dataset
+    X_test_u, y_test_u, sizes_u = create_test_dataset_unbalanced(0)
+    test_u_df = pd.DataFrame(X_test_u)
+    test_u_df['Labels'] = y_test_u
+    su = setup(data_df, target='Labels', session_id=42, n_jobs=1, test_data=test_u_df, index=False)
+    best = compare_models(include=['lr', 'knn', 'dummy'], fold=5)
+    sup_train_results_u = pull()
+    sup_train_results_u.to_csv(join(OUTPUTS_DIR, 'results_unbalanced_cv.csv'))
+    ###########
+    # to test need to use predict
+    ###########
     print('Finnish')
