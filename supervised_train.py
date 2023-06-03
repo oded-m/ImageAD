@@ -17,13 +17,14 @@ OUTPUTS_DIR = os.path.join(WORK_DIR, 'outputs')
 
 
 if __name__ == '__main__':
-    col_names = ['NTrSOrig', 'ATrSOrig', 'NTrSRes', 'ATrSRes', 'NTsSOrig', 'ATsSOrig', 'NTsSRes', 'ATsSRes',
+    col_names = ['bAccAvg', 'bAccStd', 'bAccMax', 'bAccMin', 'bAccMaxName', 'bAccMinName',
+                 'bAUCAvg', 'bAUCStd', 'bAUCMax', 'bAUCMin', 'bAUCMaxName', 'bAUCMinName',
+                 'bF1Avg', 'bF1Std', 'bF1Max', 'bF1Min', 'bF1MaxName', 'bF1MinName',
                  'ubAccAvg', 'ubAccStd', 'ubAccMax', 'ubAccMin', 'ubAccMaxName', 'ubAccMinName',
                  'ubAUCAvg', 'ubAUCStd', 'ubAUCMax', 'ubAUCMin', 'ubAUCMaxName', 'ubAUCMinName',
                  'ubF1Avg', 'ubF1Std', 'ubF1Max', 'ubF1Min', 'ubF1MaxName', 'ubF1MinName',
-                 'bAccAvg', 'bAccStd', 'bAccMax', 'bAccMin', 'bAccMaxName', 'bAccMinName',
-                 'bAUCAvg', 'bAUCStd', 'bAUCMax', 'bAUCMin', 'bAUCMaxName', 'bAUCMinName',
-                 'bF1Avg', 'bF1Std', 'bF1Max', 'bF1Min', 'bF1MaxName', 'bF1MinName'
+                 'NTrSOrig', 'ATrSOrig', 'NTrSBalanced', 'ATrSBalanced', 'NTsSOrig', 'ATsSOrig',
+                 'NTsSUnBalanced', 'ATsSUnBalanced'
                  ]
     sup_results_df = pd.DataFrame(columns=col_names)
 
