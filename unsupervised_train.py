@@ -6,6 +6,7 @@ import random
 from pyod.models.iforest import IForest
 from pyod.models.ecod import ECOD
 from pyod.models.copod import COPOD
+from pyod.models.knn import KNN
 from pyod.utils.data import evaluate_print
 from sklearn.metrics import roc_auc_score, accuracy_score, f1_score
 from create_datasets import create_train_dataset_unsupervised, create_test_dataset_balanced, create_test_dataset_unbalanced
@@ -65,12 +66,14 @@ if __name__ == '__main__':
                  'NTrSOrig', 'NTsSBalanced', 'ATsSBalanced', 'NTsSUnBalanced', 'ATsSUnBalanced',
                  ]
     unsup_results_df = pd.DataFrame()
-    model_name_list = ['IForest', 'ECOD', 'COPOD']
+    # Models to test
+    model_name_list = ['IForest', 'ECOD', 'COPOD', 'KNN']
     model_list = [IForest(n_estimators=10, random_state=42),
-                 ECOD(contamination=0.1), COPOD(contamination=0.1)]
-    dataset_id = 0
+                 ECOD(contamination=0.1), COPOD(contamination=0.1), KNN()]
+
     #############################
-    for dataset_id in range(3):
+    # Run on datasets
+    for dataset_id in range(100):
         results = []
         for model in model_list:
             # train model
@@ -93,7 +96,9 @@ if __name__ == '__main__':
         ds_result_df = update_results(unsup_ds_results_df, ['bAcc', 'bAUC', 'bF1', 'ubAcc', 'ubAUC', 'ubF1'])
         unsup_results_df = pd.concat([unsup_results_df, ds_result_df], axis=0)
     #############################
+    # save results to csv file
     unsup_results_df.columns = result_col_names
+    unsup_results_df = unsup_results_df.reset_index(drop=True)
     path = join(OUTPUTS_DIR, 'unsupervised_results.csv')
-    unsup_results_df.to_csv(path)
+    unsup_results_df.to_csv(path, index=True)
     print('Finnish')
