@@ -50,7 +50,7 @@ def update_results(df, cols_list):
         min_name_idx = df[col].idxmin()
         min_model_name = df.loc[min_name_idx, 'ModelName']
         result.append([avg, std, max, min, max_model_name, min_model_name])
-    result.append(df.iloc[0, [0, 1, 2, 3, 4]])
+    result.append(df.iloc[0, [0, 1, 2, 3, 4, 5]])
     flat_list = [item for sublist in result for item in sublist]
     result_df = pd.DataFrame([flat_list])
     return result_df
@@ -63,29 +63,33 @@ if __name__ == '__main__':
                  'ubAccAvg', 'ubAccStd', 'ubAccMax', 'ubAccMin', 'ubAccMaxName', 'ubAccMinName',
                  'ubAUCAvg', 'ubAUCStd', 'ubAUCMax', 'ubAUCMin', 'ubAUCMaxName', 'ubAUCMinName',
                  'ubF1Avg', 'ubF1Std', 'ubF1Max', 'ubF1Min', 'ubF1MaxName', 'ubF1MinName',
-                 'NTrSOrig', 'NTsSBalanced', 'ATsSBalanced', 'NTsSUnBalanced', 'ATsSUnBalanced',
+                 'NTrSOrig',  'ATrSOrig','NTsSBalanced', 'ATsSBalanced', 'NTsSUnBalanced', 'ATsSUnBalanced',
                  ]
     unsup_results_df = pd.DataFrame()
     # Models to test
     model_name_list = ['IForest', 'ECOD', 'COPOD', 'KNN']
     model_list = [IForest(n_estimators=10, random_state=42),
-                 ECOD(contamination=0.1), COPOD(contamination=0.1), KNN()]
+                 ECOD(), COPOD(), KNN()]
 
     #############################
     # Run on datasets
-    for dataset_id in range(100):
+    for dataset_id in range(1):
         results = []
         for model in model_list:
             # train model
-            X_train, y_train, sizes_train = create_train_dataset_unsupervised(dataset_id)
+            X_train, y_train, sizes_train = create_train_dataset_unsupervised(dataset_id, include_anomaly=False)
             data_df = pd.DataFrame(X_train)
+            # cont = sizes_train[1]/(sizes_train[0]+ sizes_train[1])
+            cont = 0.01
+            # update contamination
+            model.set_params(contamination=cont)
             score = model.fit(X_train)
             acc_b, auc_b, f1_b, sizes_b = test_unsupervised(model, dataset_id, 'balanced')
             acc_ub, auc_ub, f1_ub, sizes_ub = test_unsupervised(model, dataset_id, 'unbalanced')
-            results.append([sizes_train, sizes_b[0], sizes_b[1], sizes_ub[0], sizes_ub[1],
+            results.append([sizes_train[0], sizes_train[1], sizes_b[0], sizes_b[1], sizes_ub[0], sizes_ub[1],
                        acc_b, auc_b, f1_b, acc_ub, auc_ub, f1_ub])
         results_matrix = np.asarray(results)
-        col_names = ['NTrSOrig', 'NTsSBalanced', 'ATsSBalanced', 'NTsSUnBalanced', 'ATsSUnBalanced',
+        col_names = ['NTrSOrig', 'ATrSOrig', 'NTsSBalanced', 'ATsSBalanced', 'NTsSUnBalanced', 'ATsSUnBalanced',
                      'bAcc', 'bAUC', 'bF1',
                      'ubAcc', 'ubAUC', 'ubF1',
                      ]
