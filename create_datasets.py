@@ -129,14 +129,26 @@ def create_test_dataset_unbalanced(dataset_id):
     return X_test, y_test, sizes
 
 
-def create_train_dataset_unsupervised(dataset_id):
+def create_train_dataset_unsupervised(dataset_id, include_anomaly=False):
     train_f = 'TRAIN_DATASET_' + str(dataset_id) + '.csv'
     train_path = join(BENCHMARK_DIR, train_f)
     normal_encodings, normal_labels = get_dataset_from_csv(train_path)
     X_train = normal_encodings
     y_train = normal_labels
     n_normal = normal_labels.shape[0]
-    sizes = n_normal
+    n_anomaly = 0
+    if include_anomaly:
+        anomaly_f = 'SUP_TRAIN_DATASET_' + str(dataset_id) + '.csv'
+        path = join(BENCHMARK_DIR, anomaly_f)
+        anomaly_encodings1, anomaly_labels1 = get_dataset_from_csv(path)
+        frac = 0.3
+        anomaly_size = int(np.round(anomaly_encodings1.shape[0] * frac))
+        anomaly_encodings = anomaly_encodings1[0:anomaly_size, :]
+        anomaly_labels = anomaly_labels1[0:anomaly_size]
+        X_train = np.concatenate((X_train, anomaly_encodings))
+        y_train = np.concatenate((y_train, anomaly_labels))
+        n_anomaly = anomaly_labels.shape[0]
+    sizes = (n_normal, n_anomaly)
     return X_train, y_train, sizes
 
 
@@ -145,4 +157,5 @@ if __name__ == '__main__':
     #X_test_ub, y_test_ub, sizes_ub = create_test_dataset_unbalanced(1965)
     #X_test_b, y_test_b, sizes_b = create_test_dataset_balanced(0)
     X_train_unsup, y_train_unsup, sizes_unsup = create_train_dataset_unsupervised(0)
+    X_train_unsup1, y_train_unsup1, sizes_unsup1 = create_train_dataset_unsupervised(0, include_anomaly=True)
     print('Finnish')
