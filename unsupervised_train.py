@@ -24,6 +24,9 @@ def test_unsupervised(model, dataset_id, dataset_type):
         X_test, y_test, sizes = create_test_dataset_balanced(dataset_id)
     else:
         X_test, y_test, sizes = create_test_dataset_unbalanced(dataset_id)
+    # since in our implementation anomaly is represented as 0 and in PYOD predict anomaly is 1,
+    # change y_test accordingly
+    y_test = 1 - y_test
     # get predictions on test data
     y_test_pred, confidence = model.predict(X_test, return_confidence=True)
     y_test_scores = model.decision_function(X_test)
@@ -73,14 +76,14 @@ if __name__ == '__main__':
 
     #############################
     # Run on datasets
-    for dataset_id in range(1):
+    for dataset_id in range(2):
         results = []
         for model in model_list:
             # train model
             X_train, y_train, sizes_train = create_train_dataset_unsupervised(dataset_id, include_anomaly=False)
             data_df = pd.DataFrame(X_train)
             # cont = sizes_train[1]/(sizes_train[0]+ sizes_train[1])
-            cont = 0.01
+            cont = 0.1
             # update contamination
             model.set_params(contamination=cont)
             score = model.fit(X_train)
